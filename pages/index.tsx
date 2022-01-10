@@ -119,13 +119,15 @@ export default function Home(props: HomeProps) {
 
 	useEffect(() => {
 		// use efefct for setting quyery params to url
-		if (router.isReady && querryPage !== page) {
-			Router.push({
-				pathname: "/",
-				query: {
-					page: page,
-				},
-			});
+		if (router.isReady) {
+			if (querryPage !== page) {
+				Router.push({
+					pathname: "/",
+					query: {
+						page: page || 1,
+					},
+				});
+			}
 		}
 	}, [router.isReady, page]);
 
