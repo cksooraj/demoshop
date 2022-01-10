@@ -9,6 +9,7 @@ import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import Badge from "@mui/material/Badge";
 import { Pagination } from "@mui/material";
 import usePagination from "../hooks/pagination";
+import { useRouter } from "next/router";
 import { RootState } from "../app/store";
 import { useSelector, useDispatch } from "react-redux";
 import { setCartItemsData } from "../app/reducer";
@@ -36,8 +37,6 @@ export default function Home(props: HomeProps) {
 
 	const cartZustad = useCartStore((state) => state.cartItems);
 	const addToCart = useCartStore((state) => state.setCartItemsData);
-
-	console.log(cartZustad, "dsf");
 
 	const dispatch = useDispatch();
 
@@ -79,7 +78,7 @@ export default function Home(props: HomeProps) {
 	};
 
 	// handling pagination data
-	const [page, setPage] = useState(0);
+	const [page, setPage] = useState(1);
 	const _DATA = usePagination(props?.items, 6);
 	const handleChange = (e: any, p: any) => {
 		setPage(p);
@@ -103,6 +102,40 @@ export default function Home(props: HomeProps) {
 	Router.events.on("routeChangeComplete", () => {
 		setLoading(false);
 	});
+
+	//pagination  using query params
+
+	const router = useRouter();
+
+	const [querryPage, setQuerryPage] = useState(1);
+
+	useEffect(() => {
+		// use effect for getting page from querry param
+		if (router.isReady) {
+			const query = router.query;
+			setQuerryPage(Number(query.page));
+		}
+	}, [router.query, page]);
+
+	useEffect(() => {
+		// use efefct for setting quyery params to url
+		if (router.isReady && querryPage !== page) {
+			Router.push({
+				pathname: "/",
+				query: {
+					page: page,
+				},
+			});
+		}
+	}, [router.isReady, page]);
+
+	useEffect(() => {
+		// use effect for loading page based on query param
+		if (router.isReady && querryPage !== page) {
+			setPage(querryPage);
+			_DATA.jump(querryPage);
+		}
+	}, [router.isReady, page, querryPage]);
 
 	return (
 		<>
